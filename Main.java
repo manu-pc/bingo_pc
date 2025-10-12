@@ -1,4 +1,5 @@
 public class Main {
+    // mismo main para ejecutar un cliente o servidor, se diferencia con arugmentos
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("Uso: java Main [servidor|cliente]");

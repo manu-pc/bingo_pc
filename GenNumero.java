@@ -19,6 +19,7 @@ public class GenNumero {
 
     }
 
+    // sacar número pero tantas veces como numeros en un carton
     public String[] sacarCarton() {
         String[] carton = new String[Constantes.TAM_CARTON];
         for (int i = 0; i < Constantes.TAM_CARTON; i++) {

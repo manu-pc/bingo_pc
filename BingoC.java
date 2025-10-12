@@ -9,34 +9,36 @@ public class BingoC {
     private MulticastSocket sock;
     private GenNumero g = new GenNumero();
 
+    // cliente --> recibe las bolas del servidor y va marcando en su cartón
     @SuppressWarnings("deprecation")
     public void cliente() {
-        this.carton = genCarton();
-        System.out.println(this.toString());
+        this.carton = genCarton(); // genera cartón (con GenNumero)
+        System.out.println(this.toString()); // imprime su cartón
         try {
             inAdd = InetAddress.getByName(Constantes.ip);
             sock = new MulticastSocket(Constantes.PORT);
             sock.joinGroup(inAdd);
             System.out
                     .println(Constantes.AMARILLO + "Cliente iniciado! Esperando por servidor...\n" + Constantes.RESET);
+            // espera a recibir el primer mensaje
 
             byte[] buf = new byte[256];
             while (true) {
                 DatagramPacket paquete = new DatagramPacket(buf, buf.length);
                 sock.receive(paquete);
 
-                String num = new String(paquete.getData(), 0, paquete.getLength());
-                if (num.equalsIgnoreCase("bingo")) {
+                String num = new String(paquete.getData(), 0, paquete.getLength()); // recibe un mensaje
+                if (num.equalsIgnoreCase("bingo")) { // si un cliente cualquiera ha enviado bingo, acaba la partida
                     System.out.println("La partida ha acabado. Otro jugador ha cantado bingo.");
                     break;
-                } else {
+                } else { // si no, es un numero
                     System.out.println(Constantes.AMARILLO + "Número recibido: " + Constantes.RESET + num);
-                    if (comprobarNum(num)) {
+                    if (comprobarNum(num)) { // si está en el cartón
                         System.out.println(Constantes.VERDE + "Acierto!" + Constantes.RESET);
                     }
                     System.out.println(this.toString());
 
-                    if (comprobarCarton()) {
+                    if (comprobarCarton()) { // si el cartón está completo
                         System.out
                                 .println(Constantes.FONDO_VERDE + "¡Has conseguido bingo!" + Constantes.RESET + "\n");
                         byte[] bin = "bingo".getBytes();
@@ -56,7 +58,7 @@ public class BingoC {
         return g.sacarCarton();
     }
 
-    public boolean comprobarNum(String bola) {
+    public boolean comprobarNum(String bola) { // marca el numero como completo en el cartón y devuelve true
         for (int i = 0; i < this.carton.length; i++) {
             if (this.carton[i].equals(bola)) {
                 this.carton[i] = "XX";
@@ -66,7 +68,7 @@ public class BingoC {
         return false;
     }
 
-    public boolean comprobarCarton() {
+    public boolean comprobarCarton() { // comprueba si todo el cartón está marcado como completo
         for (int i = 0; i < this.carton.length; i++) {
             if (!this.carton[i].equals("XX")) {
                 return false;
@@ -76,7 +78,7 @@ public class BingoC {
     }
 
     @Override
-    public String toString() {
+    public String toString() { // imprime estado actual del cartón
         int count = 0;
         StringBuilder sb = new StringBuilder("Cartón: ");
         sb.append(Constantes.FONDO_BLANCO + Constantes.NEGRO + "|");

@@ -3,12 +3,15 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
+
+// BingoS --> Servidor de bingo.
+// Saca las bolas y envía números hasta el fin de la partida.
 public class BingoS {
     private final int PORT = Constantes.PORT;
     private GenNumero g = new GenNumero();
     private InetAddress inAdd;
     private MulticastSocket sock;
-    volatile boolean bingo = false;
+    volatile boolean bingo = false; //volatile --> si el hilo receptor la actualiza, el hilo emisor ve el cambio inmediatamente
 
     @SuppressWarnings("deprecation")
     public void servidor() {
@@ -16,7 +19,9 @@ public class BingoS {
             inAdd = InetAddress.getByName(Constantes.ip);
             sock = new MulticastSocket();
             System.out.println(Constantes.CIAN + "¡Comienza la partida de bingo!" + Constantes.RESET);
-
+            
+            // Dos hilos para poder escuchar y enviar simultáneamente
+            // hilo emisor --> saca las bolas y envía los mensajes a los clientes
             Thread emisor = new Thread(() -> {
                 try {
                     for (int i = 0; i < 90 && !bingo; i++) {
@@ -29,6 +34,7 @@ public class BingoS {
                 }
             });
 
+            // receptor --> recibe mensajes de los clientes, que pueden ser bingo
             Thread receptor = new Thread(() -> {
                 try (MulticastSocket receptorSock = new MulticastSocket(Constantes.PORT)) {
                     receptorSock.joinGroup(inAdd);
@@ -53,6 +59,7 @@ public class BingoS {
             emisor.start();
             receptor.start();
 
+            // cuando finalicen ambos hilos
             emisor.join();
             receptor.join();
 
@@ -64,6 +71,7 @@ public class BingoS {
         }
     }
 
+    // envía mensaje, delega la generación de bola a otra clase
     public void sacarBola() throws IOException, InterruptedException {
         String num = g.sacarNumero();
         byte[] buf = num.getBytes();
